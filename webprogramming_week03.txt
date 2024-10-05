@@ -1,0 +1,139 @@
+서버 : www파일속 15번째줄 var port = normalizePort(process.env.PORT || '3000'); > localhost:3000 이유>
+ > 서버접속 : router(중계기)
+> index, users 가 디폴트로 설정되어잇음
+routes속 index에 module.exports = router; >
+routes속 users는 11번째줄 module.exports = router;
+app.js파일의 7번째줄 var indexRouter = require('./routes/index');
+8번째줄 var usersRouter = require('./routes/users');와 연결됨
+
+22번째줄
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+> 다시 routes 속 users 
+router.get('/', function(req, res, next) {
+  res.send('respond with a resource');
+}); > send는
+>index 속
+router.get('/', function(req, res, next) {
+  res.render('index', {title: '차재순 페이지', pageName:'home.ejs'});
+});는 render링(가져오겠다)는 뜻 ( views에 있는 파일들, views속 index)
+views속 파일들은 단순 html임, ejs파일은 서버에서 변수값을 처리할 수 있음
+index.js에서 render('index' 는 views의 index.ejs를 가져온다는 뜻, page name은 home.ejs를 가져옴
+> 
+index.ejs속 <%=title%>은 index.js에서 설정한 title:차재순페이지 를 들고옴,
+link href와 script src들은 이쁘게하기위해 bootstrap에서 가져옴,
+link stylesheet는 public폴더의 style.css에 적용된 구글 폰트를 가져옴
+*을 사용해 모든 페이지의 글꼴을 한번에 적용
+>bootstrap의 CDN과 jquety, handlebars를 주로 사용(라이브러리)
+>body의 pageName은 변수(예시) > home.ejs속 변수(예시)>> 나머지 ejs파일들은 그대로 가져옴
+>top.ejs는 image(home.png파일을 가져옴 <img src="/images/home.png" width="100%">
+>bottom.ejs에선 copyright를 가리키는 h1태그만 가져옴, 
+>app.js의 22번째줄 
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/kakao', require('./routes/kakao'))에서 kakao routes를 호출,
+> routes속 kakao.js는 
+router.get('/book', function(req, res, next) {
+  res.render('index', { title: '도서검색', pageName:'kakao/book.ejs' });
+});는 kakao폴더의 book.ejs를 가져옴
+> book.ejs속 class들은 bootstrap에서 지원, 각자의 기능이 있음
+my-5는 margin을 의미, 마진은 1~5로 지정가능, 위아래 마진을 5로 두라는뜻
+row는 행이있고 col-md-4는 컬럼이 midlle해상도일때 4칸을 보여주겠다는 뜻
+>컬럼이 12칸중 미들해상도이상일땐 4칸을사용, 반응형사이트를 이런식으로 사용ㄱ사능
+mb-3는 마진을3주겟따는뜻
+>form은 input-group으로 input을 query로 지정, 버튼을 그룹으로 묶음>
+botton은 bootstrap에서 색상별 선택가능
+div div_list는 출력하고자 하는 공간의 id(도서목록이 출력될 공간을 지정)
+buttton prev,next로 이전과 다음 버튼 설정, 
+type=x-hanadlebars-tempalte는 handlebar의 template를 사용,
+table을 지정해줌, 도서검색 결과는 여러개이기 때문에 반복문을 사용해야함
+handlebar에서 each라는 반복문 사용,, kakao 개발자센터(https://developers.kakao.com/docs/latest/ko/daum-search/dev-guide)
+에서 문서> 검색/광고 > rest api에서
+책검색하기 > 사용예제 확인, query변수에 "책이름" 집어넣고
+authorization:kakaoAk(본인의 개인 rest api key)집어넣기
+응답 예시 meta 에서 is_end는 마지막페이지인지 확인,
+pageable_count는 9개의 페이지까지 사용한다는 뜻,
+documents는 each에서 반복할때 사용한 문서를 가져오겠다는 뜻
+authors, prices, title 등만 사용하겠다는 뜻 > 정리
+handlebar로 템플릿을 가져옴, function getList라는 함수를 만들어
+($ 표시는 jquery를 사용했기때문에 사용가능)
+$.ajax는 kakao개발자센터에서 가져온 검색 api의 도서검색 예시에서 요청의 url을 가져옴,
+query는 검색어 , size는 몇개씩, page는 출력갯수
+headers는 kakaoak 개인rest api key를 써
+handlebars를 통해 template에 list를 넣어 temp_list로 출력
+last page는 마지막페이지 인지 아닌지 구분해줌
+kakao router에 지역검색 기능 추가> routes의 kakao.js파일 참고>
+view의 kakao폴더속 local.ejs를 불러옴
+<%=title%>은 kakao.js의 local.ejs를 불러오는 변수명 title을 가져옴(지역검색)
+>class에 text-center로 중앙정렬, my-5는 마진5, ms는 왼쪽, 등 bootstrap에 정보있음
+>data를 가져올것, 자바스크립트 에서 가져올것임, 함수로 만들어주면 가져올때마다 사용가능>
+>getList함수 제작, $.ajax({}) >>$는 ajax함수 사용
+>>type, url, data, success는 필수, data는 여러개 사용가능, 
+성공햇을시 success출력(console창에 data출력 > console.log(data){} >
+type => data를 불러올땐 무조건 get
+url => /users는 response data를 가져옴, 그러나 kakao의 지역검색 data를 쓸것이라 다른것 사용할 것
+>> kakao 개발자센터의 문서 > 지도> 로컬 rest api 사용(키워드로 장소 검색하기)>
+url:"https://dapi.kakao.com/v2/local/search/keyword.json"사용>>>headers로 kakaoapi key 적용>> 
+변수선언시 값이 변경되면 let, 함수밖에 let query, let page, let size 지정, getList()호출하여 테스트
+>> div_list에 결과 출력, x-handlebar 템플릿사용해 출력>반복할땐 # each 사용
+, document속 place_name, road_address_name, phone 변수 사용, 출력할 템플릿(양식) 제작완료>>
+템플릿을 html로 컴파일해줘야함, const temp 변수에 넣기, 
+          const temp = Handlebars.compile($("#temp_list").html());
+          $("#div_list").html(temp(data));로 complie후 출력, >> bootstrap의 table 템플릿사용해
+이쁘게 출력가능 : <script id="temp_list" type="x-handlebars-template">
+>>>
+
+<h1 class="text-center my-5"><%=title%></h1>
+    <div class="row">
+        <div class="col-md-6 col-lg-3">
+            <form name="frm" class="input-group mb-2">
+                <input name="query" value="인하대학교" class="form-control">
+                <button type="submit" class="btn btn-primary"> 검색</button>
+            </form>
+        </div>
+    </div>사용해 서식지정, frm이 submit될때 submit되지 않게 해야함 >> 
+script에서        $(frm).on("submit", function(e){
+        e.preventDefault();
+    });를 사용해 submit가 실행될때 function이 사용되어 이벤트사용하지않게 적용>>
+refresh 적용하지 않음(중요!) > 그러나 인하대학교가 아닌 다른검색어를 써도 적용이안됨 >>
+변경값을 항상 가져와야함,    query=$(frm.query).val();를 넣어
+frm 네임의 query의 val값을 가져와 변경되도록 함>>아무 값이 없을때 경고를 줘야함
+>>
+        if(query==""){
+            alert("검색어를 입력하세요");
+        }else{
+            getList();
+        }를 사용해 적용
+>>이전 페이지와 다음페이지 지정   
+ <div class="text-center">
+        <button class="btn btn-primary px-3">prev</button>
+        <span class="mx-5">1</span>
+        <button class="btn btn-primary px-3">next</button>
+    </div> 사용해 버튼 추가> 다음버튼을 누른경우 페이지이동 >   
+>> button에 id prev, page, next 적용(button id="prev">(예시)>
+
+>>$("#next").on("click",function(){
+        page+=1;
+        getList();
+    });사용, 
+$("#page").html(page);를 사용해 html컴파일후 재적용,
+
+           if(page==1){
+            $("#prev").attr("disabled",true);
+          }else{
+                $("#prev").attr("disabled",false);
+            }를 사용해 1페이지에선 이전페이지가 먹히지 않게 사용
+>> 
+마지막페이지 에선 next가 적용되지 않게 적용
+            if(data.meta.is_end){
+                $("#next").attr("disabled",true);
+            }else{
+                $("#next").attr("disabled",false);
+            }
+>>>> 마지막 페이지 숫자도 출력하고 싶음
+>>
+          const last= Math.ceil(data.meta.pageable_count/size);
+          $("#page").html(`${page}/${last}`); 사용, html속 ' 가아니라 ` 임(~)
+>> 
+블로그 검색은 코드 확인,, 변경점 (검색 rest api 링크, table에서 출력할 변수 변경, b태그 없애기는 {{{중괄호3번}}}
+<a href를 넣어 링크기능도 설정가능)

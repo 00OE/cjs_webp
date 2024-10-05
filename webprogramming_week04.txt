@@ -1,0 +1,96 @@
+alt+shift+f = 자동정렬
+book을 볼때 상세보기 버튼을 눌러 창을 띄우게 할것임
+창을 띄우는걸 modal이라고함(모달)
+book.ejs와 같은 폴더에 modal_book.ejs파일을 만듬
+부트스트랩 > 문서 > 모달 에서 정적백드롭을 복사붙여넣기해서 들고옴
+정적백드롭은 모달알림창의 바깥을 눌러도 나가지지않음, 
+visual studio에서 아래줄에 spaces:4가 디폴트 > 2로 변경해도 됨(띄어쓰기 디폴트)
+, button의 이름을 정보라고 변경
+모달창을 book에 include하기 위해 book.ejs에서 table에 <td><%-include('modal_book.ejs')%></td>추가해서
+modal을 포함시킴,
+modal body에                 <div class="row">
+                    <div class="col-4"></div>
+<img src="{{thumbnail}}" width="100%">
+                    <div class="col"></div>
+                </div>
+                <hr>
+                <div>{{contents}}</div>를 추가해서 메세지를 추가
+<img src="{{thumbnail}}" width="100%">
+은 책의 썸네일 이미지를 추가하는것
+                    <div class="col">
+                        <h5>{{title}}</h5>
+                        <hr>
+                        <div>저자:{{authors}}</div>
+                        <div>가격:{{price}}원</div>
+                        <div>출판사:{{publisher}}</div>
+                        <div>ISBN:{{isbn}}</div>
+                        <div>출판일:{{datetime}}</div>를 추가해 책의 정보를 추가
+그러나 이렇게 하면 첫번째 이미지와 정보만 계속 나옴,
+data-bs-target="#staticBackdrop">이기때문에 modal의 id가 같아(<!-- Modal -->
+<div class="modal fade" id="staticBackdrop")
+한이미지만 뜨는것, hadlebar template에서 each로 반복하기떄문에 index값이있음(0부터 자동으로 증가)
+id에 {{@index}}를 추가해 유니크한 id를 붙여줌>>해결완,
+이미지가 없을떄 썸네일이 뜨지않음>> 이를 해결하고싶음
+book.ejs에서 script하나 생성
+      Handlebars.registerHelper("funThumbnail",function(thumbnail){
+        if(thumbnail) return thumbnail;
+        else return "/images/no_image.png";
+      });추가 후 each document에서
+      {{#each documents}}
+          <tr>
+            <td><img src="{{fncThumbnail thumbnail}}" width="30"></td>로 변경,
+modal_book.ejs에서 img src도 <img src="{{funThumbnail thumbnail}}" width="100%"></div>로 변경 >>
+완료
+book.ejs에서 each document에서  <td width="60"><button class="btn btn-success btn-sm">카트</button></td>추가>> 카트 버튼이 생김
+카트를 추가하려면 로그인을 해야 장바구니에 담을 수 있도록 해야함
+사용자마다 다르기 떄문에 로그인을 함
+로그인을 하기 위해서 database에서 usertable이 있어야함, 
+id 와 pw가 일치하는 사람만 로그인이 되도록 database server가 있어야함, 그러나 수업에선 firebase를 이용함
+>장바구니를 만들어서 특정 유저가 특정책을구매할 수 있게 만듬
+파이어베이스 사이트에서 오른쪽위 go to console창을 이용(인하크롬으로 이용시 바로 로그인됨)
+goto console에서 프로젝트 만들기 > 프로젝트 생성 후 앱 추가하기 >>모든제품 에서 authentication 시잓하기>>
+로그인 인증;; 하기(이메일/비밀번호) 사용설정후 저장, authentication에서 사용자에서 사용자 추가
+이메일 blue@test.com, 비밀번호 12341234로 사용자추가 > 사용자 UID(이메일과 연동)가 생김 uid로 나중에 작업할 것
+>>
+로그인 페이지를 만들어야 함, 라우터 제작>> 3라우터중 users.js 사용
+users.js에 router.get('/login', function(req, res, next) {
+  res.render('index', {title: '차재순 페이지', pageName:'users/login.ejs'});
+});추가
+>> login.ejs파일을 만들어야함, , views폴더에 users폴더만듬> 후 users 폴더에 login.ejs추가
+>><div class="col-md-6 col-lg-4"></div>를통해 반응형(해상도에따라 달라지는) 앱 사용 md-6은 small일떄6칸, lg는 라지일때(큰창)4칸
+>>
+menu.ejs에     <a href="/users/login" class="me-3" style="float:right">로그인</a>를 추가해 로그인메뉴 추가
+row my-5 justify-content-center"를사용해 row를 가운데로정렬
+            <div class="card-header">
+                <h3><%=title%></h3>
+            </div>를 넣어 헤더에 title을 집어넣기,
+            <div class="card-body">
+                <form name="frm">
+                    <input class="form-control mb-3" name="email" value="blue@test.com">
+                    <input class="form-control mb-3" type="password" 
+                    name="pass" value="12341234">
+                    <button class="btn btn-primary w-100">login</button>
+                </form>
+            </div>를 추가해 로그인 창 제작완료 type=password는 비밀번호 가리기용
+value값을 미리 지정하는것은 계속 치기 귀찮아 미리 값을 설정해둠,
+mb-3은 마진바탕을 3으로 둬 이메일pw창을 서로 좀 띄워놔 마진을 늘려두는것
+
+javascript폴더아래에 config.js파일 생성>>
+firebase 콘솔창에 톱니바퀴(모양) 프로젝트개요>프로젝트 설정>>cdn으로 설정 > 스크립트 복사후 config.js에 복붙>>
+firebase를 사용하려면 firebase app을 써야함, Initialize Firebase에
+js기때문에 <script>태그 없애야함 >> 로그인할때 인증을 해야함>
+    $(frm).on("submit",function(e){
+        e.preventDefault();
+    })를 넣어 event를 발동하지 않도록 설정, 원래는 유효성체크(email과 password가 제대로 들어갓는지확인)을 해야하는데
+auth 객체를 가지고테스트를할것, signInwithEmailAndPassword를 사용해서 확인함        
+const email=$(frm.email).val();
+        const pass=$(frm.pass).val();
+를써서 로그인체크
+
+session storage에다 
+email이라는 변수에 저장한 email을 넣어줌 > blue@test.com이 들어갈것, menu.ejs에서
+const email = sessionStorage.getItem("email");를써서 session storage에 저장된 값을 받아옴
+>>중간에 놓침..
+
+
+

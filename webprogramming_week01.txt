@@ -1,0 +1,8 @@
+1> web server 생성
+npm install express-generator -g
+
+2> web server 실행
+npm install nodemon -g
+
+3> project 생성
+express -e web01
