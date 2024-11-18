@@ -1,8 +1,8 @@
 <style>
     i {
-        cursor: pointer;
-        color: red;
+        color:red;
         font-size: 30px;
+        cursor: pointer;
     }
 </style>
 <div class="row my-5 justify-content-center p-3">
@@ -32,8 +32,8 @@
         </div>
     </div>
 </div>
+<%-include("review.ejs")%>
 <script type="module">
-
     import {app} from '/javascripts/config.js'
     //파이어베이스에 있는 사용법 복사 붙여넣기 함 cdn 주소를 적어주었다.
     import {getDatabase, ref, set, get, onValue, remove} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
@@ -47,6 +47,30 @@
     const contents = "<%=info.contents%>";
     const price = "<%=info.price%>";
     const info = {isbn, title, thumbnail, publisher, authors, contents, price};
+
+    //빈하트를 클릭한 경우
+    $("#heart").on("click", function(){
+        if($(this).attr("class")=="bi-heart"){ //빈하트
+            if(confirm("좋아요 추가?")){
+                set(ref(db, `favorite/${uid}/${isbn}`), {title});
+            }
+        }else{ //채워진 하트
+            if(confirm("좋아요 취소?")){
+                remove(ref(db, `favorite/${uid}/${isbn}`));
+            }
+        }
+    });
+    //좋아요 체크
+    onValue(ref(db, `favorite/${uid}/${isbn}`), snapshot=>{
+        //console.log(snapshot);
+        if(uid && snapshot.size==1){ //채워진하트
+            $("#heart").removeClass("bi-heart");
+            $("#heart").addClass("bi-heart-fill");
+        }else if(uid && snapshot.size==0){//빈하트
+            $("#heart").removeClass("bi-heart-fill");
+            $("#heart").addClass("bi-heart");
+        }
+    });
 
     //장바구니를 클릭한 경우
     $(".cart").on("click", async function(){ //동시에 실행하게 하지 않고 비동기처리를 하기 위해 async, await을 사용함.
@@ -69,29 +93,4 @@
             location.href = "/users/login";
         }
     })
-
-
-    //좋아요에 추가된 도서인지 아닌지 체크
-    onValue(ref(db, `favorite/${uid}/${isbn}`), snapshot=>{
-        if(uid && snapshot.size == 0){
-            $("#heart").removeClass("bi-heart-fill");
-            $("#heart").addClass("bi-heart");
-        }else if(uid && snapshot.size > 0){
-            $("#heart").removeClass("bi-heart");
-            $("#heart").addClass("bi-heart-fill");
-        }
-    });
-    
-
-    $("#heart").on("click", function(){
-       if($(this).attr("class") == "bi-heart-fill"){ //채워진 하트인 경우
-            if(confirm("좋아요! 삭제?")){
-                remove(ref(db, `favorite/${uid}/${isbn}`));
-            }
-       }else{ //빈 하트인 경우
-            if(confirm("좋아요! 추가?")){
-                set(ref(db, `favorite/${uid}/${isbn}`), {info});
-            }
-       }
-    });
 </script>
